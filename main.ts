@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
 // Remember to rename these classes and interfaces!
 
@@ -6,12 +6,14 @@ interface Settings {
     seedValue: number;
     lowRange: number;
     highRange: number;
+    spaceAfterNumber: boolean;
 }
 
 const DEFAULT_SETTINGS: Settings = {
     seedValue: Math.floor(Math.random() * (10 ** 12)),
     lowRange: 1,
     highRange: 100,
+    spaceAfterNumber: true
 }
 
 const addText = (editor: Editor, text: string) => {
@@ -20,12 +22,13 @@ const addText = (editor: Editor, text: string) => {
     editor.setCursor(cursor.line, cursor.ch + text.length);
 };
 
-const commandCallback = async (editor: Editor, settings: Settings) => {
+const generateNumberCallback = async (editor: Editor, settings: Settings) => {
     const seed = parseFloat(`0.${settings.seedValue.toString()}`);
     // Seeded random number in [0,1)
     const randomNumber: number = Math.floor(((Math.random() + seed) % 1) * settings.highRange + settings.lowRange);
 
-    addText(editor, `${randomNumber} `);
+    const space = settings.spaceAfterNumber ? ' ' : '';
+    addText(editor, `${randomNumber}${space}`);
 }
 
 export default class MyPlugin extends Plugin {
@@ -39,9 +42,16 @@ export default class MyPlugin extends Plugin {
         const commands = [
             {
                 id: 'random-int',
-                name: `Generate a random integer. Range can be modified in settings.`,
-                editorCallback: (editor: Editor) => commandCallback(editor, this.settings)
-            }
+                name: `Generate a random integer. Range can be modified in the plugin settings.`,
+                editorCallback: (editor: Editor) => generateNumberCallback(editor, this.settings)
+            },
+            {
+                id: 'toggle-space-after-number',
+                name: `Toggle the addition of a space character after generating a number.`,
+                callback: () => {
+                    this.settings.spaceAfterNumber = this.settings.spaceAfterNumber ? false : true;
+                }
+            },
         ];
 
         for (const command of commands) {
@@ -125,6 +135,15 @@ class SettingsTab extends PluginSettingTab {
                         text.setValue("");
                     }
                     await this.plugin.saveSettings();
+                }));
+
+        new Setting(containerEl)
+            .setName('Space after number')
+            .setDesc('Add a space after generating the number')
+            .addToggle(text => text
+                .setValue(this.plugin.settings.spaceAfterNumber)
+                .onChange(async (value) => {
+                    this.plugin.settings.spaceAfterNumber = value;
                 }));
     }
 }
