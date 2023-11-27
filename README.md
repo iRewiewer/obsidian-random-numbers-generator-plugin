@@ -4,9 +4,10 @@ As simple as it gets - adds a command for generating a ranodm number.
 Either run the command from the command palette or bind a hotkey for it.
 
 Features the following settings:
-- Seed Value: add a seed to the randomness
-- Low Value: lower limit of the random range
-- High Value: upper limit of the random range
+- Seed: add a seed to the randomness
+- Low range value: lower limit of the random range
+- High range value: upper limit of the random range
+- Space after number: toggle the addition of a space character after generating a number
 
 Planned features (aka maybe will add):
 - support for generating 'n' numbers at once
