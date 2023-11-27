@@ -1,4 +1,4 @@
-import { App, Editor, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
 // Remember to rename these classes and interfaces!
 
@@ -50,6 +50,7 @@ export default class MyPlugin extends Plugin {
                 name: `Toggle the addition of a space character after generating a number.`,
                 callback: () => {
                     this.settings.spaceAfterNumber = this.settings.spaceAfterNumber ? false : true;
+                    new Notice(`Space after number: ${this.settings.spaceAfterNumber ? "Enabled" : "Disabled"}`);
                 }
             },
         ];
