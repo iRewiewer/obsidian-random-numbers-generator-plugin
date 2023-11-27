@@ -1,49 +1,52 @@
-import { App, MarkdownView, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Editor, MarkdownView, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
 // Remember to rename these classes and interfaces!
 
-interface MyPluginSettings {
+interface Settings {
     seedValue: number;
     lowRange: number;
     highRange: number;
 }
 
-const DEFAULT_SETTINGS: MyPluginSettings = {
+const DEFAULT_SETTINGS: Settings = {
     seedValue: Math.floor(Math.random() * (10 ** 12)),
     lowRange: 1,
     highRange: 100,
 }
 
+const addText = (editor: Editor, text: string) => {
+    const cursor = editor.getCursor();
+    editor.replaceRange(text, cursor);
+    editor.setCursor(cursor.line, cursor.ch + text.length);
+};
+
+const commandCallback = async (editor: Editor, settings: Settings) => {
+    const seed = parseFloat(`0.${settings.seedValue.toString()}`);
+    // Seeded random number in [0,1)
+    const randomNumber: number = Math.floor(((Math.random() + seed) % 1) * settings.highRange + settings.lowRange);
+
+    addText(editor, `${randomNumber} `);
+}
+
 export default class MyPlugin extends Plugin {
-    settings: MyPluginSettings;
+    settings: Settings;
 
     async onload() {
         await this.loadSettings();
 
-        console.log("Loading Random Number Generator")
+        console.log("Loading Random Number Generator [v1.0]");
 
-        // This adds a simple command that can be triggered anywhere
-        this.addCommand({
-            id: 'random-int',
-            name: `Generate a random integer. Range can be modified in settings.`,
-            callback: async () => {
-                // Generate a random number
-                const seed = parseFloat(`0.${this.settings.seedValue.toString()}`);
-                const RNG = (Math.random() + seed) % 1;
-                const randomNumber: number = Math.floor(RNG * this.settings.highRange + this.settings.lowRange);
-                const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
-
-                if (activeView) {
-                    const editor = activeView.editor;
-                    const cursorPos = editor.getCursor();
-                    if (cursorPos) {
-                        editor.replaceRange(`${randomNumber} `, cursorPos);
-                        editor.setCursor(cursorPos.line, cursorPos.ch + randomNumber.toString().length + 1);
-                    }
-                }
+        const commands = [
+            {
+                id: 'random-int',
+                name: `Generate a random integer. Range can be modified in settings.`,
+                editorCallback: (editor: Editor) => commandCallback(editor, this.settings)
             }
-        });
+        ];
 
+        for (const command of commands) {
+            this.addCommand(command);
+        }
 
         // This adds a settings tab so the user can configure various aspects of the plugin
         this.addSettingTab(new SettingsTab(this.app, this));
