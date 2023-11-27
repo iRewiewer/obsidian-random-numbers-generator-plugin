@@ -139,7 +139,7 @@ class SettingsTab extends PluginSettingTab {
 
         new Setting(containerEl)
             .setName('Space after number')
-            .setDesc('Add a space after generating the number')
+            .setDesc('Toggle the addition of a space character after generating a number. Default: True')
             .addToggle(text => text
                 .setValue(this.plugin.settings.spaceAfterNumber)
                 .onChange(async (value) => {
