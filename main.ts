@@ -1,7 +1,5 @@
 import { App, Editor, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
-// Remember to rename these classes and interfaces!
-
 interface Settings {
     seedValue: number;
     lowRange: number;
@@ -31,7 +29,7 @@ const generateNumberCallback = async (editor: Editor, settings: Settings) => {
     addText(editor, `${randomNumber}${space}`);
 }
 
-export default class MyPlugin extends Plugin {
+export default class RNGPlugin extends Plugin {
     settings: Settings;
 
     async onload() {
@@ -50,6 +48,7 @@ export default class MyPlugin extends Plugin {
                 name: `Toggle the addition of a space character after generating a number.`,
                 callback: () => {
                     this.settings.spaceAfterNumber = this.settings.spaceAfterNumber ? false : true;
+                    this.saveSettings();
                     new Notice(`Space after number: ${this.settings.spaceAfterNumber ? "Enabled" : "Disabled"}`);
                 }
             },
@@ -73,9 +72,9 @@ export default class MyPlugin extends Plugin {
 }
 
 class SettingsTab extends PluginSettingTab {
-    plugin: MyPlugin;
+    plugin: RNGPlugin;
 
-    constructor(app: App, plugin: MyPlugin) {
+    constructor(app: App, plugin: RNGPlugin) {
         super(app, plugin);
         this.plugin = plugin;
     }
